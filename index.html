@@ -52,20 +52,104 @@
         }
 
         body {
-            background-color: var(--bg-color);
+            background: linear-gradient(to bottom right, #EAF4FF, #FFFFFF);
             color: var(--text-color);
             transition: var(--transition);
             line-height: 1.6;
             min-height: 100vh;
-            background-image: 
-                radial-gradient(at 10% 20%, rgba(37, 99, 235, 0.05) 0%, transparent 50%),
-                radial-gradient(at 90% 80%, rgba(5, 150, 105, 0.05) 0%, transparent 50%);
+        }
+
+        .dark-mode body {
+            background: linear-gradient(to bottom right, #0f172a, #1e293b);
         }
 
         .container {
             max-width: 1200px;
             margin: 0 auto;
             padding: 20px;
+        }
+
+        /* Menu Fixo */
+        .fixed-menu {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            display: flex;
+            gap: 10px;
+        }
+
+        .menu-btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            transition: var(--transition);
+            box-shadow: var(--shadow);
+        }
+
+        .menu-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 30px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border-color);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--dark-color);
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-color);
+            transition: var(--transition);
+        }
+
+        .close-btn:hover {
+            color: var(--danger-color);
         }
 
         /* Tela de Login */
@@ -485,6 +569,8 @@
             border-radius: 20px;
             font-size: 0.8rem;
             font-weight: 600;
+            white-space: nowrap;
+            display: inline-block;
         }
 
         .badge-warning {
@@ -595,6 +681,12 @@
                 margin: 20px;
                 padding: 32px 24px;
             }
+
+            .fixed-menu {
+                top: 10px;
+                right: 10px;
+                flex-direction: column;
+            }
         }
     </style>
 </head>
@@ -631,6 +723,18 @@
 
     <!-- Conteúdo Principal -->
     <div class="main-content" id="mainContent">
+        <!-- Menu Fixo -->
+        <div class="fixed-menu">
+            <button class="menu-btn" id="notesBtn">
+                <i class="fas fa-sticky-note"></i>
+                Notas
+            </button>
+            <button class="menu-btn" id="observationsBtn">
+                <i class="fas fa-eye"></i>
+                Observações
+            </button>
+        </div>
+
         <div class="container">
             <header>
                 <div class="logo">
@@ -785,11 +889,55 @@
         </div>
     </div>
 
+    <!-- Modal de Notas -->
+    <div class="modal" id="notesModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">
+                    <i class="fas fa-sticky-note"></i>
+                    Notas do Sistema
+                </h3>
+                <button class="close-btn" id="closeNotes">&times;</button>
+            </div>
+            <div class="form-group">
+                <label for="systemNotes" class="form-label">Notas Gerais</label>
+                <textarea id="systemNotes" class="form-control" rows="10" placeholder="Adicione suas notas e observações gerais sobre o sistema..."></textarea>
+            </div>
+            <button class="btn btn-primary" id="saveNotes">
+                <i class="fas fa-save"></i>
+                Salvar Notas
+            </button>
+        </div>
+    </div>
+
+    <!-- Modal de Observações -->
+    <div class="modal" id="observationsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">
+                    <i class="fas fa-eye"></i>
+                    Observações Importantes
+                </h3>
+                <button class="close-btn" id="closeObservations">&times;</button>
+            </div>
+            <div class="form-group">
+                <label for="importantObservations" class="form-label">Observações</label>
+                <textarea id="importantObservations" class="form-control" rows="10" placeholder="Registre observações importantes sobre vistorias, procedimentos ou situações especiais..."></textarea>
+            </div>
+            <button class="btn btn-primary" id="saveObservations">
+                <i class="fas fa-save"></i>
+                Salvar Observações
+            </button>
+        </div>
+    </div>
+
     <script>
         // Dados de exemplo com IDs únicos
         let vistorias = JSON.parse(localStorage.getItem('vistorias')) || [];
         let modoEscuro = localStorage.getItem('modoEscuro') === 'true';
         let usuarioLogado = localStorage.getItem('usuarioLogado') || '';
+        let notas = localStorage.getItem('notas') || '';
+        let observacoes = localStorage.getItem('observacoes') || '';
 
         // Elementos DOM
         const loginContainer = document.getElementById('loginContainer');
@@ -809,6 +957,18 @@
         const userAvatar = document.getElementById('userAvatar');
         const userName = document.getElementById('userName');
         const helpIcon = document.getElementById('helpIcon');
+        
+        // Elementos do menu fixo
+        const notesBtn = document.getElementById('notesBtn');
+        const observationsBtn = document.getElementById('observationsBtn');
+        const notesModal = document.getElementById('notesModal');
+        const observationsModal = document.getElementById('observationsModal');
+        const closeNotes = document.getElementById('closeNotes');
+        const closeObservations = document.getElementById('closeObservations');
+        const systemNotes = document.getElementById('systemNotes');
+        const importantObservations = document.getElementById('importantObservations');
+        const saveNotes = document.getElementById('saveNotes');
+        const saveObservations = document.getElementById('saveObservations');
 
         // Credenciais válidas (em um sistema real, isso viria de um servidor)
         const usuariosValidos = {
@@ -828,6 +988,7 @@
             }
             
             aplicarTema();
+            carregarNotasEObservacoes();
             
             // Adicionar alguns dados de exemplo se estiver vazio
             if (vistorias.length === 0) {
@@ -909,6 +1070,53 @@
                 document.body.classList.remove('dark-mode');
                 themeToggle.innerHTML = '<i class="fas fa-moon"></i><span>Modo Escuro</span>';
             }
+        }
+
+        // Menu Fixo - Notas e Observações
+        notesBtn.addEventListener('click', function() {
+            notesModal.style.display = 'flex';
+        });
+
+        observationsBtn.addEventListener('click', function() {
+            observationsModal.style.display = 'flex';
+        });
+
+        closeNotes.addEventListener('click', function() {
+            notesModal.style.display = 'none';
+        });
+
+        closeObservations.addEventListener('click', function() {
+            observationsModal.style.display = 'none';
+        });
+
+        // Fechar modais ao clicar fora
+        window.addEventListener('click', function(e) {
+            if (e.target === notesModal) {
+                notesModal.style.display = 'none';
+            }
+            if (e.target === observationsModal) {
+                observationsModal.style.display = 'none';
+            }
+        });
+
+        // Salvar notas e observações
+        saveNotes.addEventListener('click', function() {
+            notas = systemNotes.value;
+            localStorage.setItem('notas', notas);
+            alert('Notas salvas com sucesso!');
+            notesModal.style.display = 'none';
+        });
+
+        saveObservations.addEventListener('click', function() {
+            observacoes = importantObservations.value;
+            localStorage.setItem('observacoes', observacoes);
+            alert('Observações salvas com sucesso!');
+            observationsModal.style.display = 'none';
+        });
+
+        function carregarNotasEObservacoes() {
+            systemNotes.value = notas;
+            importantObservations.value = observacoes;
         }
 
         // Upload de arquivos
