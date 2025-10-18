@@ -1,0 +1,1079 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestão de Vistorias</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --primary-dark: #2980b9;
+            --secondary-color: #2ecc71;
+            --secondary-dark: #27ae60;
+            --danger-color: #e74c3c;
+            --warning-color: #f39c12;
+            --dark-color: #2c3e50;
+            --light-color: #ecf0f1;
+            --text-color: #333;
+            --bg-color: #f8f9fa;
+            --card-bg: #ffffff;
+            --border-color: #ddd;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        .dark-mode {
+            --primary-color: #3498db;
+            --primary-dark: #2980b9;
+            --secondary-color: #2ecc71;
+            --secondary-dark: #27ae60;
+            --danger-color: #e74c3c;
+            --warning-color: #f39c12;
+            --dark-color: #ecf0f1;
+            --light-color: #2c3e50;
+            --text-color: #f5f5f5;
+            --bg-color: #1a1a2e;
+            --card-bg: #16213e;
+            --border-color: #0f3460;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: var(--transition);
+            line-height: 1.6;
+            min-height: 100vh;
+            background-image: linear-gradient(135deg, rgba(52, 152, 219, 0.05) 0%, rgba(46, 204, 113, 0.05) 100%);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Tela de Login */
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+        }
+
+        .login-box {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: var(--shadow);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+            animation: fadeIn 0.8s ease;
+        }
+
+        .login-icon {
+            font-size: 4rem;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .login-title {
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+            color: var(--dark-color);
+        }
+
+        .login-subtitle {
+            margin-bottom: 30px;
+            color: var(--text-color);
+            opacity: 0.8;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--dark-color);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            background: var(--bg-color);
+            color: var(--text-color);
+            transition: var(--transition);
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-block {
+            width: 100%;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .error-message {
+            color: var(--danger-color);
+            font-size: 0.85rem;
+            margin-top: 5px;
+            display: none;
+        }
+
+        /* Conteúdo Principal */
+        .main-content {
+            display: none;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo i {
+            font-size: 2rem;
+            color: var(--primary-color);
+        }
+
+        .logo h1 {
+            font-size: 1.8rem;
+            color: var(--dark-color);
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .theme-toggle {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 50px;
+            padding: 8px 15px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition);
+        }
+
+        .theme-toggle:hover {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            animation: slideUp 0.5s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--dark-color);
+        }
+
+        .card-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .card-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .card-description {
+            font-size: 0.9rem;
+            color: var(--text-color);
+            opacity: 0.8;
+        }
+
+        .form-section {
+            background: var(--card-bg);
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: var(--shadow);
+            margin-bottom: 30px;
+            animation: slideUp 0.5s ease 0.2s both;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: var(--dark-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .file-upload {
+            border: 2px dashed var(--border-color);
+            border-radius: 5px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .file-upload:hover {
+            border-color: var(--primary-color);
+        }
+
+        .file-upload i {
+            font-size: 2rem;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        .file-list {
+            margin-top: 15px;
+            display: none;
+        }
+
+        .file-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background: var(--bg-color);
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+
+        .file-name {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .file-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-secondary {
+            background: var(--secondary-color);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: var(--secondary-dark);
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background: var(--danger-color);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c0392b;
+            transform: translateY(-2px);
+        }
+
+        .table-container {
+            overflow-x: auto;
+            animation: slideUp 0.5s ease 0.4s both;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background: var(--card-bg);
+            font-weight: 600;
+            color: var(--dark-color);
+        }
+
+        tr:hover {
+            background: var(--card-bg);
+        }
+
+        .badge {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .badge-warning {
+            background: var(--warning-color);
+            color: white;
+        }
+
+        .badge-danger {
+            background: var(--danger-color);
+            color: white;
+        }
+
+        .badge-success {
+            background: var(--secondary-color);
+            color: white;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px 0;
+            margin-top: 50px;
+            border-top: 1px solid var(--border-color);
+            color: var(--text-color);
+            opacity: 0.7;
+        }
+
+        /* Animações */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from { 
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+
+        .floating-icon {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background: var(--primary-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            box-shadow: var(--shadow);
+            cursor: pointer;
+            z-index: 100;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+            
+            header {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .user-menu {
+                width: 100%;
+                justify-content: space-between;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Tela de Login -->
+    <div class="login-container" id="loginContainer">
+        <div class="login-box">
+            <div class="login-icon">
+                <i class="fas fa-clipboard-check"></i>
+            </div>
+            <h1 class="login-title">Gestão de Vistorias</h1>
+            <p class="login-subtitle">Faça login para acessar o sistema</p>
+            
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="username" class="form-label">Usuário</label>
+                    <input type="text" id="username" class="form-control" placeholder="Digite seu usuário" required>
+                    <div class="error-message" id="usernameError">Por favor, preencha o usuário.</div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password" class="form-label">Senha</label>
+                    <input type="password" id="password" class="form-control" placeholder="Digite sua senha" required>
+                    <div class="error-message" id="passwordError">Por favor, preencha a senha.</div>
+                </div>
+                
+                <button type="submit" class="btn btn-primary btn-block">
+                    <i class="fas fa-sign-in-alt"></i>
+                    Entrar
+                </button>
+            </form>
+            
+            <div style="margin-top: 20px; font-size: 0.9rem; color: var(--text-color); opacity: 0.7;">
+                <p>Credenciais de teste:</p>
+                <p>Usuário: <strong>admin</strong> | Senha: <strong>1234</strong></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Conteúdo Principal -->
+    <div class="main-content" id="mainContent">
+        <div class="container">
+            <header>
+                <div class="logo">
+                    <i class="fas fa-clipboard-check"></i>
+                    <h1>Gestão de Vistorias</h1>
+                </div>
+                <div class="user-menu">
+                    <div class="user-info">
+                        <div class="user-avatar" id="userAvatar">A</div>
+                        <span id="userName">Administrador</span>
+                    </div>
+                    <button class="theme-toggle" id="themeToggle">
+                        <i class="fas fa-moon"></i>
+                        <span>Modo Escuro</span>
+                    </button>
+                    <button class="btn btn-danger" id="logoutBtn">
+                        <i class="fas fa-sign-out-alt"></i>
+                        Sair
+                    </button>
+                </div>
+            </header>
+
+            <section class="dashboard">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Total de Vistorias</div>
+                        <div class="card-icon">
+                            <i class="fas fa-list"></i>
+                        </div>
+                    </div>
+                    <div class="card-value" id="totalVistorias">0</div>
+                    <div class="card-description">Vistorias realizadas</div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Locais com Reincidência</div>
+                        <div class="card-icon">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                    </div>
+                    <div class="card-value" id="locaisReincidentes">0</div>
+                    <div class="card-description">Locais com problemas recorrentes</div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Taxa de Reincidência</div>
+                        <div class="card-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                    </div>
+                    <div class="card-value" id="taxaReincidencia">0%</div>
+                    <div class="card-description">Percentual de locais reincidentes</div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Funcionários Ativos</div>
+                        <div class="card-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                    </div>
+                    <div class="card-value" id="funcionariosAtivos">0</div>
+                    <div class="card-description">Realizando vistorias</div>
+                </div>
+            </section>
+
+            <section class="form-section">
+                <h2 class="section-title">
+                    <i class="fas fa-plus-circle"></i>
+                    Nova Vistoria
+                </h2>
+                <form id="vistoriaForm">
+                    <div class="form-group">
+                        <label for="data" class="form-label">Data <span style="color: var(--danger-color)">*</span></label>
+                        <input type="date" id="data" class="form-control" required>
+                        <div class="error-message" id="dataError">Por favor, preencha a data.</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="local" class="form-label">Local <span style="color: var(--danger-color)">*</span></label>
+                        <select id="local" class="form-control" required>
+                            <option value="">Selecione um local</option>
+                            <option value="Almoxarifado">Almoxarifado</option>
+                            <option value="Área de Produção">Área de Produção</option>
+                            <option value="Escritório">Escritório</option>
+                            <option value="Refeitório">Refeitório</option>
+                            <option value="Estacionamento">Estacionamento</option>
+                            <option value="Sala de Reuniões">Sala de Reuniões</option>
+                        </select>
+                        <div class="error-message" id="localError">Por favor, selecione um local.</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="funcionario" class="form-label">Funcionário(a) <span style="color: var(--danger-color)">*</span></label>
+                        <input type="text" id="funcionario" class="form-control" placeholder="Nome do funcionário" required>
+                        <div class="error-message" id="funcionarioError">Por favor, preencha o nome do funcionário.</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Fotos</label>
+                        <div class="file-upload" id="fileUpload">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <p>Clique ou arraste as fotos aqui</p>
+                            <input type="file" id="fotos" multiple accept="image/*" style="display: none;">
+                        </div>
+                        <div class="file-list" id="fileList"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="orientacao" class="form-label">Orientação Prestada <span style="color: var(--danger-color)">*</span></label>
+                        <textarea id="orientacao" class="form-control" rows="4" placeholder="Descreva as orientações prestadas..." required></textarea>
+                        <div class="error-message" id="orientacaoError">Por favor, preencha a orientação prestada.</div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i>
+                        Salvar Vistoria
+                    </button>
+                </form>
+            </section>
+
+            <section class="form-section">
+                <h2 class="section-title">
+                    <i class="fas fa-history"></i>
+                    Histórico de Vistorias
+                </h2>
+                <div class="table-container">
+                    <table id="tabelaVistorias">
+                        <thead>
+                            <tr>
+                                <th>Data</th>
+                                <th>Local</th>
+                                <th>Funcionário</th>
+                                <th>Orientação</th>
+                                <th>Status</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="vistoriasBody">
+                            <!-- As vistorias serão inseridas aqui via JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <footer>
+                <p>Gestão de Vistorias &copy; 2023 - Todos os direitos reservados</p>
+            </footer>
+        </div>
+        
+        <div class="floating-icon" id="helpIcon">
+            <i class="fas fa-question"></i>
+        </div>
+    </div>
+
+    <script>
+        // Dados de exemplo com IDs únicos
+        let vistorias = JSON.parse(localStorage.getItem('vistorias')) || [];
+        let modoEscuro = localStorage.getItem('modoEscuro') === 'true';
+        let usuarioLogado = localStorage.getItem('usuarioLogado') || '';
+
+        // Elementos DOM
+        const loginContainer = document.getElementById('loginContainer');
+        const mainContent = document.getElementById('mainContent');
+        const themeToggle = document.getElementById('themeToggle');
+        const loginForm = document.getElementById('loginForm');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const vistoriaForm = document.getElementById('vistoriaForm');
+        const fileUpload = document.getElementById('fileUpload');
+        const fileInput = document.getElementById('fotos');
+        const fileList = document.getElementById('fileList');
+        const vistoriasBody = document.getElementById('vistoriasBody');
+        const totalVistorias = document.getElementById('totalVistorias');
+        const locaisReincidentes = document.getElementById('locaisReincidentes');
+        const taxaReincidencia = document.getElementById('taxaReincidencia');
+        const funcionariosAtivos = document.getElementById('funcionariosAtivos');
+        const userAvatar = document.getElementById('userAvatar');
+        const userName = document.getElementById('userName');
+        const helpIcon = document.getElementById('helpIcon');
+
+        // Credenciais válidas (em um sistema real, isso viria de um servidor)
+        const usuariosValidos = {
+            'admin': '1234',
+            'gestor': '5678',
+            'vistoriador': '91011'
+        };
+
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', function() {
+            // Verificar se já está logado
+            if (usuarioLogado) {
+                mostrarConteudoPrincipal();
+            } else {
+                loginContainer.style.display = 'flex';
+                mainContent.style.display = 'none';
+            }
+            
+            aplicarTema();
+            
+            // Adicionar alguns dados de exemplo se estiver vazio
+            if (vistorias.length === 0) {
+                adicionarDadosExemplo();
+            }
+        });
+
+        // Login
+        loginForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            let valido = true;
+            
+            if (!username) {
+                document.getElementById('usernameError').style.display = 'block';
+                valido = false;
+            } else {
+                document.getElementById('usernameError').style.display = 'none';
+            }
+            
+            if (!password) {
+                document.getElementById('passwordError').style.display = 'block';
+                valido = false;
+            } else {
+                document.getElementById('passwordError').style.display = 'none';
+            }
+            
+            if (valido) {
+                // Verificar credenciais
+                if (usuariosValidos[username] && usuariosValidos[username] === password) {
+                    usuarioLogado = username;
+                    localStorage.setItem('usuarioLogado', username);
+                    mostrarConteudoPrincipal();
+                } else {
+                    alert('Usuário ou senha incorretos!');
+                }
+            }
+        });
+
+        // Logout
+        logoutBtn.addEventListener('click', function() {
+            if (confirm('Tem certeza que deseja sair?')) {
+                usuarioLogado = '';
+                localStorage.removeItem('usuarioLogado');
+                loginContainer.style.display = 'flex';
+                mainContent.style.display = 'none';
+                loginForm.reset();
+            }
+        });
+
+        function mostrarConteudoPrincipal() {
+            loginContainer.style.display = 'none';
+            mainContent.style.display = 'block';
+            
+            // Atualizar informações do usuário
+            userAvatar.textContent = usuarioLogado.charAt(0).toUpperCase();
+            userName.textContent = usuarioLogado.charAt(0).toUpperCase() + usuarioLogado.slice(1);
+            
+            // Atualizar dashboard
+            atualizarDashboard();
+            renderizarVistorias();
+        }
+
+        // Alternar modo claro/escuro
+        themeToggle.addEventListener('click', function() {
+            modoEscuro = !modoEscuro;
+            localStorage.setItem('modoEscuro', modoEscuro);
+            aplicarTema();
+        });
+
+        function aplicarTema() {
+            if (modoEscuro) {
+                document.body.classList.add('dark-mode');
+                themeToggle.innerHTML = '<i class="fas fa-sun"></i><span>Modo Claro</span>';
+            } else {
+                document.body.classList.remove('dark-mode');
+                themeToggle.innerHTML = '<i class="fas fa-moon"></i><span>Modo Escuro</span>';
+            }
+        }
+
+        // Upload de arquivos
+        fileUpload.addEventListener('click', function() {
+            fileInput.click();
+        });
+
+        fileInput.addEventListener('change', function() {
+            if (fileInput.files.length > 0) {
+                fileList.style.display = 'block';
+                fileList.innerHTML = '';
+                
+                for (let i = 0; i < fileInput.files.length; i++) {
+                    const file = fileInput.files[i];
+                    const fileItem = document.createElement('div');
+                    fileItem.className = 'file-item';
+                    fileItem.innerHTML = `
+                        <div class="file-name">
+                            <i class="fas fa-file-image"></i>
+                            <span>${file.name}</span>
+                        </div>
+                        <div class="file-actions">
+                            <button type="button" class="btn btn-danger" data-index="${i}">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    `;
+                    fileList.appendChild(fileItem);
+                }
+                
+                // Adicionar eventos aos botões de remover
+                document.querySelectorAll('.file-actions .btn-danger').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const index = parseInt(this.getAttribute('data-index'));
+                        removerArquivo(index);
+                    });
+                });
+            } else {
+                fileList.style.display = 'none';
+            }
+        });
+
+        function removerArquivo(index) {
+            // Criar um novo FileList sem o arquivo removido
+            const dt = new DataTransfer();
+            for (let i = 0; i < fileInput.files.length; i++) {
+                if (i !== index) {
+                    dt.items.add(fileInput.files[i]);
+                }
+            }
+            fileInput.files = dt.files;
+            
+            // Atualizar a lista de arquivos
+            fileInput.dispatchEvent(new Event('change'));
+        }
+
+        // Validação e envio do formulário
+        vistoriaForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Validar campos obrigatórios
+            const data = document.getElementById('data').value;
+            const local = document.getElementById('local').value;
+            const funcionario = document.getElementById('funcionario').value;
+            const orientacao = document.getElementById('orientacao').value;
+            
+            let valido = true;
+            
+            if (!data) {
+                document.getElementById('dataError').style.display = 'block';
+                valido = false;
+            } else {
+                document.getElementById('dataError').style.display = 'none';
+            }
+            
+            if (!local) {
+                document.getElementById('localError').style.display = 'block';
+                valido = false;
+            } else {
+                document.getElementById('localError').style.display = 'none';
+            }
+            
+            if (!funcionario) {
+                document.getElementById('funcionarioError').style.display = 'block';
+                valido = false;
+            } else {
+                document.getElementById('funcionarioError').style.display = 'none';
+            }
+            
+            if (!orientacao) {
+                document.getElementById('orientacaoError').style.display = 'block';
+                valido = false;
+            } else {
+                document.getElementById('orientacaoError').style.display = 'none';
+            }
+            
+            if (valido) {
+                // Criar nova vistoria com ID único
+                const novaVistoria = {
+                    id: Date.now(), // ID único baseado no timestamp
+                    data: data,
+                    local: local,
+                    funcionario: funcionario,
+                    orientacao: orientacao,
+                    fotos: Array.from(fileInput.files).map(file => file.name),
+                    usuario: usuarioLogado,
+                    dataCriacao: new Date().toISOString()
+                };
+                
+                vistorias.push(novaVistoria);
+                localStorage.setItem('vistorias', JSON.stringify(vistorias));
+                
+                // Atualizar a interface
+                atualizarDashboard();
+                renderizarVistorias();
+                
+                // Limpar formulário
+                vistoriaForm.reset();
+                fileList.style.display = 'none';
+                fileInput.value = '';
+                
+                alert('Vistoria registrada com sucesso!');
+            }
+        });
+
+        // Atualizar dashboard
+        function atualizarDashboard() {
+            totalVistorias.textContent = vistorias.length;
+            
+            // Calcular locais com reincidência (mais de uma vistoria)
+            const locaisCount = {};
+            vistorias.forEach(vistoria => {
+                locaisCount[vistoria.local] = (locaisCount[vistoria.local] || 0) + 1;
+            });
+            
+            const locaisComReincidencia = Object.values(locaisCount).filter(count => count > 1).length;
+            locaisReincidentes.textContent = locaisComReincidencia;
+            
+            // Calcular taxa de reincidência
+            const totalLocais = Object.keys(locaisCount).length;
+            const taxa = totalLocais > 0 ? Math.round((locaisComReincidencia / totalLocais) * 100) : 0;
+            taxaReincidencia.textContent = `${taxa}%`;
+            
+            // Calcular funcionários ativos
+            const funcionariosUnicos = new Set(vistorias.map(v => v.funcionario));
+            funcionariosAtivos.textContent = funcionariosUnicos.size;
+        }
+
+        // Renderizar vistorias na tabela
+        function renderizarVistorias() {
+            vistoriasBody.innerHTML = '';
+            
+            if (vistorias.length === 0) {
+                vistoriasBody.innerHTML = `
+                    <tr>
+                        <td colspan="6" style="text-align: center;">Nenhuma vistoria registrada</td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            // Ordenar por data (mais recente primeiro)
+            const vistoriasOrdenadas = [...vistorias].sort((a, b) => new Date(b.data) - new Date(a.data));
+            
+            vistoriasOrdenadas.forEach(vistoria => {
+                const tr = document.createElement('tr');
+                
+                // Verificar se é reincidente
+                const countLocal = vistorias.filter(v => v.local === vistoria.local).length;
+                const status = countLocal > 1 ? 
+                    `<span class="badge badge-warning">Reincidente (${countLocal})</span>` : 
+                    `<span class="badge badge-success">Normal</span>`;
+                
+                tr.innerHTML = `
+                    <td>${formatarData(vistoria.data)}</td>
+                    <td>${vistoria.local}</td>
+                    <td>${vistoria.funcionario}</td>
+                    <td>${vistoria.orientacao.length > 50 ? vistoria.orientacao.substring(0, 50) + '...' : vistoria.orientacao}</td>
+                    <td>${status}</td>
+                    <td>
+                        <button class="btn btn-secondary btn-sm" onclick="verDetalhes(${vistoria.id})">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="btn btn-danger btn-sm" onclick="excluirVistoria(${vistoria.id})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                `;
+                
+                vistoriasBody.appendChild(tr);
+            });
+        }
+
+        // Funções auxiliares
+        function formatarData(dataString) {
+            const data = new Date(dataString);
+            return data.toLocaleDateString('pt-BR');
+        }
+
+        function verDetalhes(id) {
+            const vistoria = vistorias.find(v => v.id === id);
+            if (vistoria) {
+                alert(`Detalhes da Vistoria:\n\nData: ${formatarData(vistoria.data)}\nLocal: ${vistoria.local}\nFuncionário: ${vistoria.funcionario}\nOrientações: ${vistoria.orientacao}\nFotos: ${vistoria.fotos.join(', ') || 'Nenhuma'}\nRegistrado por: ${vistoria.usuario}`);
+            }
+        }
+
+        function excluirVistoria(id) {
+            if (confirm('Tem certeza que deseja excluir esta vistoria?')) {
+                vistorias = vistorias.filter(v => v.id !== id);
+                localStorage.setItem('vistorias', JSON.stringify(vistorias));
+                atualizarDashboard();
+                renderizarVistorias();
+            }
+        }
+
+        // Adicionar dados de exemplo
+        function adicionarDadosExemplo() {
+            const exemplos = [
+                {
+                    id: 1,
+                    data: '2023-10-15',
+                    local: 'Almoxarifado',
+                    funcionario: 'Maria Silva',
+                    orientacao: 'Organizar produtos por data de validade e manter área limpa.',
+                    fotos: ['almoxarifado1.jpg', 'almoxarifado2.jpg'],
+                    usuario: 'admin',
+                    dataCriacao: '2023-10-15T10:30:00Z'
+                },
+                {
+                    id: 2,
+                    data: '2023-10-10',
+                    local: 'Área de Produção',
+                    funcionario: 'João Santos',
+                    orientacao: 'Verificar equipamentos de segurança e sinalização de áreas de risco.',
+                    fotos: ['producao1.jpg'],
+                    usuario: 'admin',
+                    dataCriacao: '2023-10-10T14:20:00Z'
+                },
+                {
+                    id: 3,
+                    data: '2023-10-05',
+                    local: 'Almoxarifado',
+                    funcionario: 'Carlos Oliveira',
+                    orientacao: 'Identificar produtos com embalagem danificada e separar para descarte.',
+                    fotos: ['almoxarifado3.jpg'],
+                    usuario: 'gestor',
+                    dataCriacao: '2023-10-05T09:15:00Z'
+                },
+                {
+                    id: 4,
+                    data: '2023-09-28',
+                    local: 'Refeitório',
+                    funcionario: 'Ana Costa',
+                    orientacao: 'Verificar condições de higiene e organização do local.',
+                    fotos: ['refeitorio1.jpg', 'refeitorio2.jpg'],
+                    usuario: 'vistoriador',
+                    dataCriacao: '2023-09-28T16:45:00Z'
+                }
+            ];
+            
+            vistorias = exemplos;
+            localStorage.setItem('vistorias', JSON.stringify(vistorias));
+        }
+
+        // Ícone de ajuda flutuante
+        helpIcon.addEventListener('click', function() {
+            alert('Sistema de Gestão de Vistorias\n\nPara usar o sistema:\n1. Faça login com suas credenciais\n2. Preencha o formulário de vistoria\n3. Acompanhe as métricas no dashboard\n4. Consulte o histórico de vistorias\n\nDúvidas? Contate o administrador do sistema.');
+        });
+    </script>
+</body>
+</html>
