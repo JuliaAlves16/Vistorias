@@ -36,7 +36,7 @@
             --warning-color: #f59e0b;
             --dark-color: #f1f5f9;
             --light-color: #1e293b;
-            --text-color: #cbd5e1;
+            --text-color: #e2e8f0;
             --bg-color: #0f172a;
             --card-bg: #1e293b;
             --border-color: #334155;
@@ -67,37 +67,6 @@
             max-width: 1200px;
             margin: 0 auto;
             padding: 20px;
-        }
-
-        /* Menu Fixo Simplificado */
-        .fixed-menu {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 1000;
-            display: flex;
-            gap: 10px;
-        }
-
-        .menu-btn {
-            background: var(--primary-color);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            padding: 12px 16px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-weight: 600;
-            transition: var(--transition);
-            box-shadow: var(--shadow);
-        }
-
-        .menu-btn:hover {
-            background: var(--primary-dark);
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-lg);
         }
 
         /* Tela de Login */
@@ -134,7 +103,7 @@
             position: relative;
             z-index: 1;
             backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--border-color);
         }
 
         .login-icon {
@@ -301,6 +270,7 @@
             gap: 8px;
             transition: var(--transition);
             font-weight: 500;
+            color: var(--text-color);
         }
 
         .theme-toggle:hover {
@@ -413,6 +383,7 @@
             text-align: center;
             cursor: pointer;
             transition: var(--transition);
+            background: var(--bg-color);
         }
 
         .file-upload:hover {
@@ -424,6 +395,11 @@
             font-size: 2.5rem;
             color: var(--primary-color);
             margin-bottom: 12px;
+        }
+
+        .file-upload p {
+            color: var(--text-color);
+            margin: 0;
         }
 
         .file-list {
@@ -446,6 +422,7 @@
             display: flex;
             align-items: center;
             gap: 12px;
+            color: var(--text-color);
         }
 
         .file-actions {
@@ -486,17 +463,20 @@
             border-radius: var(--radius);
             border: 1px solid var(--border-color);
             box-shadow: var(--shadow);
+            background: var(--card-bg);
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
+            background: var(--card-bg);
         }
 
         th, td {
             padding: 16px 20px;
             text-align: left;
             border-bottom: 1px solid var(--border-color);
+            color: var(--text-color);
         }
 
         th {
@@ -534,6 +514,11 @@
         .badge-success {
             background: var(--secondary-color);
             color: white;
+        }
+
+        .export-section {
+            text-align: right;
+            margin-bottom: 20px;
         }
 
         footer {
@@ -630,10 +615,8 @@
                 padding: 32px 24px;
             }
 
-            .fixed-menu {
-                top: 10px;
-                right: 10px;
-                flex-direction: column;
+            .export-section {
+                text-align: center;
             }
         }
     </style>
@@ -671,14 +654,6 @@
 
     <!-- Conteúdo Principal -->
     <div class="main-content" id="mainContent">
-        <!-- Menu Fixo Simplificado -->
-        <div class="fixed-menu">
-            <button class="menu-btn" id="exportBtn">
-                <i class="fas fa-file-export"></i>
-                Exportar
-            </button>
-        </div>
-
         <div class="container">
             <header>
                 <div class="logo">
@@ -800,6 +775,12 @@
             </section>
 
             <section class="form-section">
+                <div class="export-section">
+                    <button class="btn btn-secondary" id="exportBtn">
+                        <i class="fas fa-file-export"></i>
+                        Exportar Dados
+                    </button>
+                </div>
                 <h2 class="section-title">
                     <i class="fas fa-history"></i>
                     Histórico de Vistorias
@@ -834,7 +815,7 @@
     </div>
 
     <script>
-        // Dados de exemplo com IDs únicos
+        // Dados - histórico começa completamente limpo
         let vistorias = JSON.parse(localStorage.getItem('vistorias')) || [];
         let modoEscuro = localStorage.getItem('modoEscuro') === 'true';
         let usuarioLogado = localStorage.getItem('usuarioLogado') || '';
@@ -859,7 +840,7 @@
         const helpIcon = document.getElementById('helpIcon');
         const exportBtn = document.getElementById('exportBtn');
 
-        // Credenciais válidas (em um sistema real, isso viria de um servidor)
+        // Credenciais válidas
         const usuariosValidos = {
             'admin': '1234',
             'gestor': '5678',
@@ -878,7 +859,9 @@
             
             aplicarTema();
             
-            // Não adicionar dados de exemplo - histórico começa vazio
+            // Histórico começa limpo - sem dados de exemplo
+            atualizarDashboard();
+            renderizarVistorias();
         });
 
         // Login
@@ -1131,7 +1114,7 @@
             if (vistorias.length === 0) {
                 vistoriasBody.innerHTML = `
                     <tr>
-                        <td colspan="6" style="text-align: center; padding: 40px;">Nenhuma vistoria registrada</td>
+                        <td colspan="6" style="text-align: center; padding: 40px; color: var(--text-color);">Nenhuma vistoria registrada</td>
                     </tr>
                 `;
                 return;
