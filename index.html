@@ -226,6 +226,17 @@
             box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
         }
 
+        .btn-warning {
+            background: var(--warning-color);
+            color: white;
+        }
+
+        .btn-warning:hover {
+            background: #b45309;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(217, 119, 6, 0.3);
+        }
+
         .error-message {
             color: var(--danger-color);
             font-size: 0.85rem;
@@ -594,6 +605,73 @@
             opacity: 0.7;
         }
 
+        /* Modal de edição */
+        .modal-edicao .modal-content {
+            max-width: 600px;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            margin-top: 24px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .fotos-atuais {
+            margin-top: 16px;
+            padding: 16px;
+            background: var(--bg-color);
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .fotos-atuais h4 {
+            margin-bottom: 12px;
+            color: var(--dark-color);
+            font-size: 1rem;
+        }
+
+        .fotos-lista {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .foto-miniatura {
+            position: relative;
+            width: 80px;
+            height: 80px;
+            border-radius: 6px;
+            overflow: hidden;
+            border: 2px solid var(--border-color);
+        }
+
+        .foto-miniatura img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .remover-foto {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            background: var(--danger-color);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 0.7rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
         /* Animações */
         @keyframes fadeIn {
             from { opacity: 0; }
@@ -689,6 +767,14 @@
             .modal-content {
                 margin: 10% auto;
                 width: 95%;
+            }
+
+            .form-actions {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
             }
         }
     </style>
@@ -895,6 +981,73 @@
         </div>
     </div>
 
+    <!-- Modal para editar vistoria -->
+    <div class="modal modal-edicao" id="editarModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Editar Vistoria</h3>
+                <button class="close-modal" id="closeEditarModal">&times;</button>
+            </div>
+            <form id="editarForm">
+                <input type="hidden" id="editarId">
+                <div class="form-group">
+                    <label for="editarData" class="form-label">Data <span style="color: var(--danger-color)">*</span></label>
+                    <input type="date" id="editarData" class="form-control" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="editarLocal" class="form-label">Local <span style="color: var(--danger-color)">*</span></label>
+                    <select id="editarLocal" class="form-control" required>
+                        <option value="">Selecione um local</option>
+                        <option value="Centro Peruíbe">Centro Peruíbe</option>
+                        <option value="Loja Gaivotas">Loja Gaivotas</option>
+                        <option value="Sede">Sede</option>
+                        <option value="Pop">Pop</option>
+                        <option value="Base Técnica">Base Técnica</option>
+                        <option value="Loja Centro">Loja Centro</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="editarFuncionario" class="form-label">Funcionário(a) <span style="color: var(--danger-color)">*</span></label>
+                    <input type="text" id="editarFuncionario" class="form-control" placeholder="Nome do funcionário" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Fotos Atuais</label>
+                    <div class="fotos-atuais">
+                        <h4>Fotos já cadastradas</h4>
+                        <div class="fotos-lista" id="fotosAtuaisLista">
+                            <!-- Fotos atuais serão inseridas aqui -->
+                        </div>
+                        <div class="file-upload" id="editarFileUpload">
+                            <i class="fas fa-plus"></i>
+                            <p>Adicionar mais fotos</p>
+                            <input type="file" id="editarFotos" multiple accept="image/*" style="display: none;">
+                        </div>
+                        <div class="file-list" id="editarFileList"></div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="editarOrientacao" class="form-label">Orientação Prestada <span style="color: var(--danger-color)">*</span></label>
+                    <textarea id="editarOrientacao" class="form-control" rows="4" placeholder="Descreva as orientações prestadas..." required></textarea>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" id="cancelarEdicao">
+                        <i class="fas fa-times"></i>
+                        Cancelar
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i>
+                        Salvar Alterações
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script>
         // Dados - histórico começa completamente limpo
         let vistorias = JSON.parse(localStorage.getItem('vistorias')) || [];
@@ -921,6 +1074,19 @@
         const fotosModal = document.getElementById('fotosModal');
         const fotosGrid = document.getElementById('fotosGrid');
         const closeModal = document.getElementById('closeModal');
+        const editarModal = document.getElementById('editarModal');
+        const editarForm = document.getElementById('editarForm');
+        const closeEditarModal = document.getElementById('closeEditarModal');
+        const cancelarEdicao = document.getElementById('cancelarEdicao');
+        const editarFileUpload = document.getElementById('editarFileUpload');
+        const editarFileInput = document.getElementById('editarFotos');
+        const editarFileList = document.getElementById('editarFileList');
+        const fotosAtuaisLista = document.getElementById('fotosAtuaisLista');
+
+        // Variáveis para controle de edição
+        let vistoriaEditando = null;
+        let novasFotos = [];
+        let fotosRemovidas = [];
 
         // Credenciais válidas
         const usuariosValidos = {
@@ -1024,7 +1190,7 @@
             alert('Dados exportados com sucesso!');
         });
 
-        // Upload de arquivos
+        // Upload de arquivos - Formulário principal
         fileUpload.addEventListener('click', function() {
             fileInput.click();
         });
@@ -1056,7 +1222,7 @@
                 document.querySelectorAll('.file-actions .btn-danger').forEach(button => {
                     button.addEventListener('click', function() {
                         const index = parseInt(this.getAttribute('data-index'));
-                        removerArquivo(index);
+                        removerArquivo(index, fileInput, fileList);
                     });
                 });
             } else {
@@ -1064,21 +1230,61 @@
             }
         });
 
-        function removerArquivo(index) {
+        // Upload de arquivos - Modal de edição
+        editarFileUpload.addEventListener('click', function() {
+            editarFileInput.click();
+        });
+
+        editarFileInput.addEventListener('change', function() {
+            if (editarFileInput.files.length > 0) {
+                editarFileList.style.display = 'block';
+                editarFileList.innerHTML = '';
+                
+                for (let i = 0; i < editarFileInput.files.length; i++) {
+                    const file = editarFileInput.files[i];
+                    const fileItem = document.createElement('div');
+                    fileItem.className = 'file-item';
+                    fileItem.innerHTML = `
+                        <div class="file-name">
+                            <i class="fas fa-file-image"></i>
+                            <span>${file.name}</span>
+                        </div>
+                        <div class="file-actions">
+                            <button type="button" class="btn btn-danger btn-sm" data-index="${i}">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    `;
+                    editarFileList.appendChild(fileItem);
+                }
+                
+                // Adicionar eventos aos botões de remover
+                document.querySelectorAll('#editarFileList .file-actions .btn-danger').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const index = parseInt(this.getAttribute('data-index'));
+                        removerArquivo(index, editarFileInput, editarFileList);
+                    });
+                });
+            } else {
+                editarFileList.style.display = 'none';
+            }
+        });
+
+        function removerArquivo(index, inputElement, listElement) {
             // Criar um novo FileList sem o arquivo removido
             const dt = new DataTransfer();
-            for (let i = 0; i < fileInput.files.length; i++) {
+            for (let i = 0; i < inputElement.files.length; i++) {
                 if (i !== index) {
-                    dt.items.add(fileInput.files[i]);
+                    dt.items.add(inputElement.files[i]);
                 }
             }
-            fileInput.files = dt.files;
+            inputElement.files = dt.files;
             
             // Atualizar a lista de arquivos
-            fileInput.dispatchEvent(new Event('change'));
+            inputElement.dispatchEvent(new Event('change'));
         }
 
-        // Validação e envio do formulário
+        // Validação e envio do formulário principal
         vistoriaForm.addEventListener('submit', function(e) {
             e.preventDefault();
             
@@ -1163,6 +1369,142 @@
             }
         });
 
+        // Função para editar vistoria
+        function editarVistoria(id) {
+            vistoriaEditando = vistorias.find(v => v.id === id);
+            if (vistoriaEditando) {
+                // Preencher o formulário com os dados atuais
+                document.getElementById('editarId').value = vistoriaEditando.id;
+                document.getElementById('editarData').value = vistoriaEditando.data;
+                document.getElementById('editarLocal').value = vistoriaEditando.local;
+                document.getElementById('editarFuncionario').value = vistoriaEditando.funcionario;
+                document.getElementById('editarOrientacao').value = vistoriaEditando.orientacao;
+                
+                // Limpar arrays de controle
+                novasFotos = [];
+                fotosRemovidas = [];
+                
+                // Exibir fotos atuais
+                exibirFotosAtuais();
+                
+                // Limpar lista de novas fotos
+                editarFileList.style.display = 'none';
+                editarFileInput.value = '';
+                
+                // Abrir modal
+                editarModal.style.display = 'block';
+            }
+        }
+
+        // Função para exibir fotos atuais no modal de edição
+        function exibirFotosAtuais() {
+            fotosAtuaisLista.innerHTML = '';
+            
+            if (vistoriaEditando.fotos && vistoriaEditando.fotos.length > 0) {
+                vistoriaEditando.fotos.forEach((foto, index) => {
+                    const fotoItem = document.createElement('div');
+                    fotoItem.className = 'foto-miniatura';
+                    fotoItem.innerHTML = `
+                        <img src="${foto.data}" alt="${foto.nome}">
+                        <button type="button" class="remover-foto" data-index="${index}">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    `;
+                    fotosAtuaisLista.appendChild(fotoItem);
+                });
+                
+                // Adicionar eventos aos botões de remover fotos
+                document.querySelectorAll('.remover-foto').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const index = parseInt(this.getAttribute('data-index'));
+                        removerFotoAtual(index);
+                    });
+                });
+            } else {
+                fotosAtuaisLista.innerHTML = '<p style="color: var(--text-color); opacity: 0.7;">Nenhuma foto cadastrada</p>';
+            }
+        }
+
+        // Função para remover foto atual
+        function removerFotoAtual(index) {
+            if (confirm('Deseja remover esta foto?')) {
+                // Adicionar à lista de fotos removidas
+                fotosRemovidas.push(vistoriaEditando.fotos[index]);
+                // Remover da lista atual
+                vistoriaEditando.fotos.splice(index, 1);
+                // Atualizar exibição
+                exibirFotosAtuais();
+            }
+        }
+
+        // Submissão do formulário de edição
+        editarForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Validar campos obrigatórios
+            const data = document.getElementById('editarData').value;
+            const local = document.getElementById('editarLocal').value;
+            const funcionario = document.getElementById('editarFuncionario').value;
+            const orientacao = document.getElementById('editarOrientacao').value;
+            
+            if (!data || !local || !funcionario || !orientacao) {
+                alert('Por favor, preencha todos os campos obrigatórios.');
+                return;
+            }
+            
+            // Processar novas fotos
+            const processarNovasFotos = Array.from(editarFileInput.files).map(file => {
+                return new Promise((resolve) => {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        resolve({
+                            nome: file.name,
+                            data: e.target.result
+                        });
+                    };
+                    reader.readAsDataURL(file);
+                });
+            });
+
+            Promise.all(processarNovasFotos).then(novasFotosBase64 => {
+                // Atualizar a vistoria
+                vistoriaEditando.data = data;
+                vistoriaEditando.local = local;
+                vistoriaEditando.funcionario = funcionario;
+                vistoriaEditando.orientacao = orientacao;
+                
+                // Adicionar novas fotos
+                vistoriaEditando.fotos = [...vistoriaEditando.fotos, ...novasFotosBase64];
+                
+                // Salvar no localStorage
+                localStorage.setItem('vistorias', JSON.stringify(vistorias));
+                
+                // Atualizar a interface
+                atualizarDashboard();
+                renderizarVistorias();
+                
+                // Fechar modal
+                editarModal.style.display = 'none';
+                
+                alert('Vistoria atualizada com sucesso!');
+            });
+        });
+
+        // Fechar modais
+        closeEditarModal.addEventListener('click', function() {
+            editarModal.style.display = 'none';
+        });
+
+        cancelarEdicao.addEventListener('click', function() {
+            editarModal.style.display = 'none';
+        });
+
+        editarModal.addEventListener('click', function(e) {
+            if (e.target === editarModal) {
+                editarModal.style.display = 'none';
+            }
+        });
+
         // Atualizar dashboard
         function atualizarDashboard() {
             totalVistorias.textContent = vistorias.length;
@@ -1223,6 +1565,9 @@
                         </button>
                         <button class="btn btn-secondary btn-sm" onclick="verFotos(${vistoria.id})" ${vistoria.fotos.length === 0 ? 'disabled' : ''}>
                             <i class="fas fa-images"></i>
+                        </button>
+                        <button class="btn btn-warning btn-sm" onclick="editarVistoria(${vistoria.id})">
+                            <i class="fas fa-edit"></i>
                         </button>
                         <button class="btn btn-danger btn-sm" onclick="excluirVistoria(${vistoria.id})">
                             <i class="fas fa-trash"></i>
