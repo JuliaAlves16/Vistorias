@@ -1263,6 +1263,37 @@
                 </form>
             </section>
 
+            <!-- Histórico de Vistorias -->
+            <section class="form-section">
+                <div class="export-section">
+                    <button class="btn btn-secondary" id="exportBtn">
+                        <i class="fas fa-file-export"></i>
+                        Exportar Dados
+                    </button>
+                </div>
+                <h2 class="section-title">
+                    <i class="fas fa-history"></i>
+                    Histórico de Vistorias
+                </h2>
+                <div class="table-container">
+                    <table id="tabelaVistorias">
+                        <thead>
+                            <tr>
+                                <th>Data</th>
+                                <th>Local</th>
+                                <th>Funcionário</th>
+                                <th>Orientação</th>
+                                <th>Status</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="vistoriasBody">
+                            <!-- As vistorias serão inseridas aqui via JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
             <!-- Configurações do JSONBin -->
             <section class="config-section" id="configSection" style="display: none;">
                 <h2 class="section-title">
@@ -1318,39 +1349,8 @@
                 </form>
             </section>
 
-            <!-- Histórico de Vistorias -->
-            <section class="form-section">
-                <div class="export-section">
-                    <button class="btn btn-secondary" id="exportBtn">
-                        <i class="fas fa-file-export"></i>
-                        Exportar Dados
-                    </button>
-                </div>
-                <h2 class="section-title">
-                    <i class="fas fa-history"></i>
-                    Histórico de Vistorias
-                </h2>
-                <div class="table-container">
-                    <table id="tabelaVistorias">
-                        <thead>
-                            <tr>
-                                <th>Data</th>
-                                <th>Local</th>
-                                <th>Funcionário</th>
-                                <th>Orientação</th>
-                                <th>Status</th>
-                                <th>Ações</th>
-                            </tr>
-                        </thead>
-                        <tbody id="vistoriasBody">
-                            <!-- As vistorias serão inseridas aqui via JavaScript -->
-                        </tbody>
-                    </table>
-                </div>
-            </section>
-
             <footer>
-                <p>Gestão de Vistorias &copy; 2025 - Sistema Profissional de Controle </p>
+                <p>Gestão de Vistorias &copy; 2025 - Sistema Profissional de Controle</p>
             </footer>
         </div>
         
@@ -1763,8 +1763,6 @@
             syncText.textContent = mensagem;
             syncIndicator.className = 'sync-indicator show ' + tipo;
         }
-
-        // ... (o restante do código JavaScript permanece igual) ...
 
         // Login
         loginForm.addEventListener('submit', function(e) {
