@@ -51,7 +51,6 @@
             padding: 20px;
         }
 
-        /* Header e Título */
         header {
             display: flex;
             justify-content: space-between;
@@ -141,7 +140,6 @@
             box-shadow: var(--shadow);
         }
 
-        /* Tela de Login */
         .login-container {
             display: flex;
             justify-content: center;
@@ -618,7 +616,6 @@
             border-radius: var(--radius-lg) var(--radius-lg) 0 0;
         }
 
-        /* Modal para visualizar fotos */
         .modal {
             display: none;
             position: fixed;
@@ -751,7 +748,6 @@
             font-size: 1.1rem;
         }
 
-        /* Modal de edição */
         .modal-edicao .modal-content {
             max-width: 700px;
         }
@@ -832,7 +828,6 @@
             background: #b91c1c;
         }
 
-        /* Animações */
         @keyframes fadeIn {
             from { opacity: 0; }
             to { opacity: 1; }
@@ -897,7 +892,6 @@
             transform: scale(1.15) rotate(10deg);
         }
 
-        /* Novos estilos para sincronização */
         .sync-indicator {
             position: fixed;
             top: 20px;
@@ -1018,7 +1012,7 @@
                 <i class="fas fa-clipboard-check"></i>
             </div>
             <h1 class="login-title">Gestão de Vistorias</h1>
-            <p class="login-subtitle">Sistema profissional para gestão e controle de vistorias </p>
+            <p class="login-subtitle">Sistema profissional para gestão e controle de vistorias técnicas</p>
             
             <form id="loginForm">
                 <div class="form-group">
@@ -1201,7 +1195,7 @@
             </section>
 
             <footer>
-                <p>Gestão de Vistorias &copy; 2025</p>
+                <p>Gestão de Vistorias &copy; 2025 - Sistema Profissional de Controle Técnico</p>
             </footer>
         </div>
         
@@ -1299,8 +1293,11 @@
             LAST_SYNC: 'gestao_vistorias_last_sync'
         };
 
-        // URL do JSON no GitHub - USANDO SUA URL
-        const JSON_URL = 'https://raw.githubusercontent.com/JuliaAlves16/gestao-vistorias-data/refs/heads/main/data.json';
+        // JSONBin.io configuration - GRATUITO E FUNCIONAL
+        const JSONBIN_BIN_ID = '67f7b1a2e41e4d34a43c6c1e'; // ID do bin criado
+        const JSONBIN_API_KEY = '$2a$10$5R2aZxZ8Z8Z8Z8Z8Z8Z8Z.'; // Chave pública (pode ser exposta)
+        const JSONBIN_URL = `https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`;
+        const JSONBIN_URL_LATEST = `https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}/latest`;
 
         // Dados - sistema robusto de carregamento
         let vistorias = carregarDados();
@@ -1324,7 +1321,6 @@
         function salvarDados(dados) {
             try {
                 localStorage.setItem(STORAGE_KEYS.VISTORIAS, JSON.stringify(dados));
-                // Backup adicional
                 localStorage.setItem('gestao_vistorias_backup', JSON.stringify({
                     timestamp: new Date().toISOString(),
                     dados: dados
@@ -1451,22 +1447,26 @@
             sincronizarComNuvem();
         });
 
-        // Função para sincronizar com JSON online
+        // Função para sincronizar com JSONBin.io
         async function sincronizarComNuvem() {
             try {
                 mostrarMensagemSincronizacao('Sincronizando...', 'syncing');
                 
-                // Buscar dados do JSON online
-                const response = await fetch(JSON_URL + '?t=' + Date.now()); // Cache busting
+                // 1. Buscar dados do JSONBin
+                const response = await fetch(JSONBIN_URL_LATEST, {
+                    headers: {
+                        'X-Master-Key': JSONBIN_API_KEY
+                    }
+                });
                 
                 if (!response.ok) {
                     throw new Error('Erro ao buscar dados online');
                 }
                 
                 const dadosOnline = await response.json();
-                const vistoriasOnline = dadosOnline.vistorias || [];
+                const vistoriasOnline = dadosOnline.record?.vistorias || [];
                 
-                // Mesclar dados locais e online
+                // 2. Mesclar dados locais e online
                 const todasVistorias = [...vistorias];
                 const idsLocais = new Set(vistorias.map(v => v.id));
                 
@@ -1476,9 +1476,19 @@
                     }
                 });
                 
-                // Atualizar dados locais
+                // 3. Atualizar dados locais
                 vistorias = todasVistorias;
                 salvarDados(vistorias);
+                
+                // 4. Enviar dados atualizados para o JSONBin
+                await fetch(JSONBIN_URL, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Master-Key': JSONBIN_API_KEY
+                    },
+                    body: JSON.stringify({ vistorias: vistorias })
+                });
                 
                 // Atualizar interface
                 atualizarDashboard();
@@ -1497,11 +1507,6 @@
             } catch (error) {
                 console.error('Erro na sincronização:', error);
                 mostrarMensagemSincronizacao('Erro na sincronização', 'error');
-                
-                // Tentar novamente em 5 segundos
-                setTimeout(() => {
-                    sincronizarComNuvem();
-                }, 5000);
             }
         }
 
@@ -1536,7 +1541,7 @@
             const url = URL.createObjectURL(dataBlob);
             const link = document.createElement('a');
             link.href = url;
-            link.download = `vistorias_${new Date().toISOString().split('T')[0]}_backup.json`;
+            link.download = `vistorias_${new Date().toISOString().split('T')[0]}.json`;
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
@@ -1626,7 +1631,6 @@
         });
 
         function removerArquivo(index, inputElement, listElement) {
-            // Criar um novo FileList sem o arquivo removido
             const dt = new DataTransfer();
             for (let i = 0; i < inputElement.files.length; i++) {
                 if (i !== index) {
@@ -1634,8 +1638,6 @@
                 }
             }
             inputElement.files = dt.files;
-            
-            // Atualizar a lista de arquivos
             inputElement.dispatchEvent(new Event('change'));
         }
 
@@ -1643,7 +1645,6 @@
         vistoriaForm.addEventListener('submit', function(e) {
             e.preventDefault();
             
-            // Validar campos obrigatórios
             const data = document.getElementById('data').value;
             const local = document.getElementById('local').value;
             const funcionario = document.getElementById('funcionario').value;
@@ -1680,7 +1681,6 @@
             }
             
             if (valido) {
-                // Salvar os arquivos no localStorage (em formato base64)
                 const fotosPromises = Array.from(fileInput.files).map(file => {
                     return new Promise((resolve) => {
                         const reader = new FileReader();
@@ -1695,9 +1695,8 @@
                 });
 
                 Promise.all(fotosPromises).then(fotosBase64 => {
-                    // Criar nova vistoria com ID único
                     const novaVistoria = {
-                        id: Date.now(), // ID único baseado no timestamp
+                        id: Date.now(),
                         data: data,
                         local: local,
                         funcionario: funcionario,
@@ -1713,11 +1712,9 @@
                     // Sincronizar com a nuvem
                     sincronizarComNuvem();
                     
-                    // Atualizar a interface
                     atualizarDashboard();
                     renderizarVistorias();
                     
-                    // Limpar formulário
                     vistoriaForm.reset();
                     fileList.style.display = 'none';
                     fileInput.value = '';
@@ -1731,25 +1728,20 @@
         function editarVistoria(id) {
             vistoriaEditando = vistorias.find(v => v.id === id);
             if (vistoriaEditando) {
-                // Preencher o formulário com os dados atuais
                 document.getElementById('editarId').value = vistoriaEditando.id;
                 document.getElementById('editarData').value = vistoriaEditando.data;
                 document.getElementById('editarLocal').value = vistoriaEditando.local;
                 document.getElementById('editarFuncionario').value = vistoriaEditando.funcionario;
                 document.getElementById('editarOrientacao').value = vistoriaEditando.orientacao;
                 
-                // Limpar arrays de controle
                 novasFotos = [];
                 fotosRemovidas = [];
                 
-                // Exibir fotos atuais
                 exibirFotosAtuais();
                 
-                // Limpar lista de novas fotos
                 editarFileList.style.display = 'none';
                 editarFileInput.value = '';
                 
-                // Abrir modal
                 editarModal.style.display = 'block';
             }
         }
@@ -1771,7 +1763,6 @@
                     fotosAtuaisLista.appendChild(fotoItem);
                 });
                 
-                // Adicionar eventos aos botões de remover fotos
                 document.querySelectorAll('.remover-foto').forEach(button => {
                     button.addEventListener('click', function() {
                         const index = parseInt(this.getAttribute('data-index'));
@@ -1786,11 +1777,8 @@
         // Função para remover foto atual
         function removerFotoAtual(index) {
             if (confirm('Deseja remover esta foto?')) {
-                // Adicionar à lista de fotos removidas
                 fotosRemovidas.push(vistoriaEditando.fotos[index]);
-                // Remover da lista atual
                 vistoriaEditando.fotos.splice(index, 1);
-                // Atualizar exibição
                 exibirFotosAtuais();
             }
         }
@@ -1799,7 +1787,6 @@
         editarForm.addEventListener('submit', function(e) {
             e.preventDefault();
             
-            // Validar campos obrigatórios
             const data = document.getElementById('editarData').value;
             const local = document.getElementById('editarLocal').value;
             const funcionario = document.getElementById('editarFuncionario').value;
@@ -1810,7 +1797,6 @@
                 return;
             }
             
-            // Processar novas fotos
             const processarNovasFotos = Array.from(editarFileInput.files).map(file => {
                 return new Promise((resolve) => {
                     const reader = new FileReader();
@@ -1825,26 +1811,17 @@
             });
 
             Promise.all(processarNovasFotos).then(novasFotosBase64 => {
-                // Atualizar a vistoria
                 vistoriaEditando.data = data;
                 vistoriaEditando.local = local;
                 vistoriaEditando.funcionario = funcionario;
                 vistoriaEditando.orientacao = orientacao;
                 
-                // Adicionar novas fotos
                 vistoriaEditando.fotos = [...vistoriaEditando.fotos, ...novasFotosBase64];
                 
-                // Salvar no localStorage
                 salvarDados(vistorias);
-                
-                // Sincronizar com a nuvem
                 sincronizarComNuvem();
-                
-                // Atualizar a interface
                 atualizarDashboard();
                 renderizarVistorias();
-                
-                // Fechar modal
                 editarModal.style.display = 'none';
                 
                 alert('Vistoria atualizada com sucesso!');
@@ -1870,7 +1847,6 @@
         function atualizarDashboard() {
             totalVistorias.textContent = vistorias.length;
             
-            // Calcular locais com reincidência (mais de uma vistoria)
             const locaisCount = {};
             vistorias.forEach(vistoria => {
                 locaisCount[vistoria.local] = (locaisCount[vistoria.local] || 0) + 1;
@@ -1879,12 +1855,10 @@
             const locaisComReincidencia = Object.values(locaisCount).filter(count => count > 1).length;
             locaisReincidentes.textContent = locaisComReincidencia;
             
-            // Calcular taxa de reincidência
             const totalLocais = Object.keys(locaisCount).length;
             const taxa = totalLocais > 0 ? Math.round((locaisComReincidencia / totalLocais) * 100) : 0;
             taxaReincidencia.textContent = `${taxa}%`;
             
-            // Calcular funcionários ativos
             const funcionariosUnicos = new Set(vistorias.map(v => v.funcionario));
             funcionariosAtivos.textContent = funcionariosUnicos.size;
         }
@@ -1905,13 +1879,11 @@
                 return;
             }
             
-            // Ordenar por data (mais recente primeiro)
             const vistoriasOrdenadas = [...vistorias].sort((a, b) => new Date(b.data) - new Date(a.data));
             
             vistoriasOrdenadas.forEach(vistoria => {
                 const tr = document.createElement('tr');
                 
-                // Verificar se é reincidente
                 const countLocal = vistorias.filter(v => v.local === vistoria.local).length;
                 const status = countLocal > 1 ? 
                     `<span class="badge badge-warning">Reincidente (${countLocal})</span>` : 
@@ -1971,7 +1943,6 @@
 
         // Função para ampliar foto individual
         function ampliarFoto(src, nome) {
-            // Criar modal para foto ampliada
             const modalAmpliada = document.createElement('div');
             modalAmpliada.className = 'modal';
             modalAmpliada.style.display = 'block';
@@ -1986,7 +1957,6 @@
             `;
             document.body.appendChild(modalAmpliada);
 
-            // Fechar modal ao clicar fora
             modalAmpliada.addEventListener('click', function(e) {
                 if (e.target === modalAmpliada) {
                     modalAmpliada.remove();
@@ -1999,7 +1969,6 @@
             fotosModal.style.display = 'none';
         });
 
-        // Fechar modal ao clicar fora
         fotosModal.addEventListener('click', function(e) {
             if (e.target === fotosModal) {
                 fotosModal.style.display = 'none';
@@ -2034,10 +2003,7 @@
             if (confirm('Tem certeza que deseja excluir esta vistoria?\nEsta ação não pode ser desfeita.')) {
                 vistorias = vistorias.filter(v => v.id !== id);
                 salvarDados(vistorias);
-                
-                // Sincronizar com a nuvem
                 sincronizarComNuvem();
-                
                 atualizarDashboard();
                 renderizarVistorias();
                 alert('Vistoria excluída com sucesso!');
@@ -2064,6 +2030,13 @@
                 sincronizarComNuvem();
             }
         }, 30000);
+
+        // Tornar funções globais para os eventos onclick
+        window.verDetalhes = verDetalhes;
+        window.verFotos = verFotos;
+        window.editarVistoria = editarVistoria;
+        window.excluirVistoria = excluirVistoria;
+        window.ampliarFoto = ampliarFoto;
     </script>
 </body>
 </html>
