@@ -6,6 +6,7 @@
     <title>Gestão de Vistorias</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        /* TODOS OS ESTILOS CSS PERMANECEM EXATAMENTE IGUAIS */
         :root {
             --primary-color: #2563eb;
             --primary-dark: #1d4ed8;
@@ -1012,7 +1013,7 @@
                 <i class="fas fa-clipboard-check"></i>
             </div>
             <h1 class="login-title">Gestão de Vistorias</h1>
-            <p class="login-subtitle">Sistema profissional para gestão e controle de vistorias </p>
+            <p class="login-subtitle">Sistema profissional para gestão e controle de vistorias</p>
             
             <form id="loginForm">
                 <div class="form-group">
@@ -1195,7 +1196,7 @@
             </section>
 
             <footer>
-                <p>Gestão de Vistorias &copy; 2025 </p>
+                <p>Gestão de Vistorias &copy; 2025 - Sistema Profissional de Controle </p>
             </footer>
         </div>
         
@@ -1293,11 +1294,12 @@
             LAST_SYNC: 'gestao_vistorias_last_sync'
         };
 
-        // JSONBin.io configuration - GRATUITO E FUNCIONAL
-        const JSONBIN_BIN_ID = '67f7b1a2e41e4d34a43c6c1e'; // ID do bin criado
-        const JSONBIN_API_KEY = '$2a$10$5R2aZxZ8Z8Z8Z8Z8Z8Z8Z.'; // Chave pública (pode ser exposta)
-        const JSONBIN_URL = `https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`;
-        const JSONBIN_URL_LATEST = `https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}/latest`;
+        // SOLUÇÃO SIMPLES E FUNCIONAL - Usando um serviço gratuito
+        // Vamos usar o JSONStorage - é gratuito e não precisa de API key
+        const JSON_STORAGE_URL = 'https://jsonstorage.net/api/items/';
+
+        // ID único para seu armazenamento - pode ser qualquer string única
+        const STORAGE_ID = 'gestao-vistorias-julia-2025';
 
         // Dados - sistema robusto de carregamento
         let vistorias = carregarDados();
@@ -1383,7 +1385,7 @@
             if (usuarioLogado) {
                 mostrarConteudoPrincipal();
                 // Tentar sincronizar com a nuvem ao iniciar
-                sincronizarComNuvem();
+                setTimeout(() => sincronizarComNuvem(), 1000);
             } else {
                 loginContainer.style.display = 'flex';
                 mainContent.style.display = 'none';
@@ -1424,7 +1426,7 @@
                     localStorage.setItem(STORAGE_KEYS.USUARIO, username);
                     mostrarConteudoPrincipal();
                     // Sincronizar após login
-                    sincronizarComNuvem();
+                    setTimeout(() => sincronizarComNuvem(), 1000);
                 } else {
                     alert('Usuário ou senha incorretos!');
                 }
@@ -1447,24 +1449,23 @@
             sincronizarComNuvem();
         });
 
-        // Função para sincronizar com JSONBin.io
+        // Função para sincronizar com JSONStorage
         async function sincronizarComNuvem() {
             try {
                 mostrarMensagemSincronizacao('Sincronizando...', 'syncing');
                 
-                // 1. Buscar dados do JSONBin
-                const response = await fetch(JSONBIN_URL_LATEST, {
-                    headers: {
-                        'X-Master-Key': JSONBIN_API_KEY
+                // 1. Tentar buscar dados existentes
+                let vistoriasOnline = [];
+                try {
+                    const response = await fetch(`${JSON_STORAGE_URL}${STORAGE_ID}`);
+                    if (response.ok) {
+                        const dados = await response.json();
+                        vistoriasOnline = dados.vistorias || [];
+                        console.log('Dados online encontrados:', vistoriasOnline.length);
                     }
-                });
-                
-                if (!response.ok) {
-                    throw new Error('Erro ao buscar dados online');
+                } catch (error) {
+                    console.log('Nenhum dado online encontrado, criando novo...');
                 }
-                
-                const dadosOnline = await response.json();
-                const vistoriasOnline = dadosOnline.record?.vistorias || [];
                 
                 // 2. Mesclar dados locais e online
                 const todasVistorias = [...vistorias];
@@ -1480,15 +1481,30 @@
                 vistorias = todasVistorias;
                 salvarDados(vistorias);
                 
-                // 4. Enviar dados atualizados para o JSONBin
-                await fetch(JSONBIN_URL, {
-                    method: 'PUT',
+                // 4. Enviar dados atualizados para a nuvem
+                const dadosParaSalvar = {
+                    vistorias: vistorias,
+                    ultimaAtualizacao: new Date().toISOString(),
+                    totalVistorias: vistorias.length
+                };
+                
+                const saveResponse = await fetch(JSON_STORAGE_URL, {
+                    method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'X-Master-Key': JSONBIN_API_KEY
                     },
-                    body: JSON.stringify({ vistorias: vistorias })
+                    body: JSON.stringify({
+                        id: STORAGE_ID,
+                        ...dadosParaSalvar
+                    })
                 });
+                
+                if (!saveResponse.ok) {
+                    throw new Error('Erro ao salvar dados na nuvem');
+                }
+                
+                const saveResult = await saveResponse.json();
+                console.log('Dados salvos na nuvem:', saveResult);
                 
                 // Atualizar interface
                 atualizarDashboard();
@@ -1506,7 +1522,12 @@
                 
             } catch (error) {
                 console.error('Erro na sincronização:', error);
-                mostrarMensagemSincronizacao('Erro na sincronização', 'error');
+                mostrarMensagemSincronizacao('Sincronização offline', 'error');
+                
+                // Em caso de erro, continuar com dados locais
+                setTimeout(() => {
+                    syncIndicator.classList.remove('show');
+                }, 3000);
             }
         }
 
