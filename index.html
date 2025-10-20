@@ -828,6 +828,99 @@
             background: #b91c1c;
         }
 
+        .config-section {
+            background: var(--card-bg);
+            border-radius: var(--radius-lg);
+            padding: 40px;
+            box-shadow: var(--shadow);
+            margin-bottom: 50px;
+            border: 1px solid var(--border-color);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .config-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+        }
+
+        .config-info {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border: 2px solid var(--primary-light);
+            border-radius: var(--radius);
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+
+        .config-info h4 {
+            color: var(--primary-dark);
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+
+        .config-info ol {
+            margin-left: 20px;
+            margin-bottom: 15px;
+        }
+
+        .config-info li {
+            margin-bottom: 8px;
+            line-height: 1.5;
+        }
+
+        .config-info code {
+            background: var(--primary-color);
+            color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 0.9rem;
+        }
+
+        .status-conexao {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: var(--radius);
+            background: var(--bg-color);
+            border: 2px solid var(--border-color);
+        }
+
+        .status-conexao.connected {
+            border-color: var(--secondary-color);
+            background: rgba(5, 150, 105, 0.05);
+        }
+
+        .status-conexao.disconnected {
+            border-color: var(--danger-color);
+            background: rgba(220, 38, 38, 0.05);
+        }
+
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--danger-color);
+        }
+
+        .status-indicator.connected {
+            background: var(--secondary-color);
+            animation: pulse 2s infinite;
+        }
+
+        .test-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
         @keyframes fadeIn {
             from { opacity: 0; }
             to { opacity: 1; }
@@ -1001,6 +1094,10 @@
             .sync-indicator.show {
                 transform: translateY(0);
             }
+
+            .test-buttons {
+                flex-direction: column;
+            }
         }
     </style>
 </head>
@@ -1012,7 +1109,7 @@
                 <i class="fas fa-clipboard-check"></i>
             </div>
             <h1 class="login-title">Gestão de Vistorias</h1>
-            <p class="login-subtitle">Sistema profissional para gestão e controle de vistorias técnicas</p>
+            <p class="login-subtitle">Sistema profissional para gestão e controle de vistorias</p>
             
             <form id="loginForm">
                 <div class="form-group">
@@ -1055,8 +1152,8 @@
                         <span id="userName">Administrador</span>
                     </div>
                     <div class="sync-actions">
-                        <button class="btn btn-info" id="syncBtn" title="Sincronizar agora">
-                            <i class="fas fa-sync-alt"></i>
+                        <button class="btn btn-info" id="configBtn" title="Configurações">
+                            <i class="fas fa-cog"></i>
                         </button>
                         <button class="btn btn-danger" id="logoutBtn">
                             <i class="fas fa-sign-out-alt"></i>
@@ -1066,6 +1163,7 @@
                 </div>
             </header>
 
+            <!-- Dashboard -->
             <section class="dashboard">
                 <div class="card">
                     <div class="card-header">
@@ -1109,6 +1207,7 @@
                 </div>
             </section>
 
+            <!-- Nova Vistoria -->
             <section class="form-section">
                 <h2 class="section-title">
                     <i class="fas fa-plus-circle"></i>
@@ -1164,6 +1263,62 @@
                 </form>
             </section>
 
+            <!-- Configurações do JSONBin -->
+            <section class="config-section" id="configSection" style="display: none;">
+                <h2 class="section-title">
+                    <i class="fas fa-cog"></i>
+                    Configurações do JSONBin
+                </h2>
+                
+                <div class="config-info">
+                    <h4>📋 Como configurar o JSONBin.io:</h4>
+                    <ol>
+                        <li>Acesse: <a href="https://jsonbin.io/" target="_blank">https://jsonbin.io/</a></li>
+                        <li>Crie uma conta gratuita</li>
+                        <li>Crie um novo bin (cole: <code>{"vistorias": []}</code>)</li>
+                        <li>Copie o <strong>Bin ID</strong> e cole abaixo</li>
+                        <li>Vá em "API Keys" e copie a <strong>Secret Key</strong></li>
+                        <li>Cole a Secret Key no campo abaixo</li>
+                    </ol>
+                    <p><strong>💡 Dica:</strong> A sincronização automática acontece a cada 5 minutos.</p>
+                </div>
+
+                <form id="configForm">
+                    <div class="form-group">
+                        <label for="jsonbinBinId" class="form-label">Bin ID <span style="color: var(--danger-color)">*</span></label>
+                        <input type="text" id="jsonbinBinId" class="form-control" placeholder="Cole o Bin ID aqui" required>
+                        <div class="error-message" id="binIdError">Por favor, preencha o Bin ID.</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="jsonbinApiKey" class="form-label">API Key (Secret Key) <span style="color: var(--danger-color)">*</span></label>
+                        <input type="password" id="jsonbinApiKey" class="form-control" placeholder="Cole a API Key aqui" required>
+                        <div class="error-message" id="apiKeyError">Por favor, preencha a API Key.</div>
+                    </div>
+
+                    <div class="status-conexao" id="statusConexao">
+                        <div class="status-indicator" id="statusIndicator"></div>
+                        <span id="statusText">Configure as credenciais para testar a conexão</span>
+                    </div>
+
+                    <div class="test-buttons">
+                        <button type="button" class="btn btn-secondary" id="testConexaoBtn">
+                            <i class="fas fa-plug"></i>
+                            Testar Conexão
+                        </button>
+                        <button type="button" class="btn btn-info" id="sincronizarAgoraBtn">
+                            <i class="fas fa-sync"></i>
+                            Sincronizar Agora
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i>
+                            Salvar Configurações
+                        </button>
+                    </div>
+                </form>
+            </section>
+
+            <!-- Histórico de Vistorias -->
             <section class="form-section">
                 <div class="export-section">
                     <button class="btn btn-secondary" id="exportBtn">
@@ -1195,7 +1350,7 @@
             </section>
 
             <footer>
-                <p>Gestão de Vistorias &copy; 2025 - Sistema Profissional de Controle Técnico</p>
+                <p>Gestão de Vistorias &copy; 2025 - Sistema Profissional de Controle </p>
             </footer>
         </div>
         
@@ -1293,13 +1448,32 @@
             LAST_SYNC: 'gestao_vistorias_last_sync'
         };
 
-        // JSONBin.io configuration - FUNCIONAL E GRATUITO
-        // Crie uma conta gratuita em: https://jsonbin.io/
-        // E substitua estas credenciais pelas suas:
-        const JSONBIN_BIN_ID = 'SEU_BIN_ID_AQUI'; // ID do seu bin
-        const JSONBIN_API_KEY = 'SUA_API_KEY_AQUI'; // Sua API Key
-        const JSONBIN_URL = `https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`;
-        const JSONBIN_URL_LATEST = `https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}/latest`;
+        // Configuração padrão do JSONBin
+        let JSONBIN_CONFIG = {
+            BIN_ID: '',
+            API_KEY: ''
+        };
+
+        // Carregar configuração salva
+        function carregarConfiguracao() {
+            try {
+                const config = localStorage.getItem(STORAGE_KEYS.CONFIG);
+                if (config) {
+                    JSONBIN_CONFIG = JSON.parse(config);
+                }
+            } catch (error) {
+                console.error('Erro ao carregar configuração:', error);
+            }
+        }
+
+        // Salvar configuração
+        function salvarConfiguracao() {
+            try {
+                localStorage.setItem(STORAGE_KEYS.CONFIG, JSON.stringify(JSONBIN_CONFIG));
+            } catch (error) {
+                console.error('Erro ao salvar configuração:', error);
+            }
+        }
 
         // Dados - sistema robusto de carregamento
         let vistorias = carregarDados();
@@ -1337,6 +1511,17 @@
         const mainContent = document.getElementById('mainContent');
         const loginForm = document.getElementById('loginForm');
         const logoutBtn = document.getElementById('logoutBtn');
+        const configBtn = document.getElementById('configBtn');
+        const configSection = document.getElementById('configSection');
+        const configForm = document.getElementById('configForm');
+        const jsonbinBinId = document.getElementById('jsonbinBinId');
+        const jsonbinApiKey = document.getElementById('jsonbinApiKey');
+        const testConexaoBtn = document.getElementById('testConexaoBtn');
+        const sincronizarAgoraBtn = document.getElementById('sincronizarAgoraBtn');
+        const statusConexao = document.getElementById('statusConexao');
+        const statusIndicator = document.getElementById('statusIndicator');
+        const statusText = document.getElementById('statusText');
+        
         const vistoriaForm = document.getElementById('vistoriaForm');
         const fileUpload = document.getElementById('fileUpload');
         const fileInput = document.getElementById('fotos');
@@ -1363,7 +1548,6 @@
         const fotosAtuaisLista = document.getElementById('fotosAtuaisLista');
         const syncIndicator = document.getElementById('syncIndicator');
         const syncText = document.getElementById('syncText');
-        const syncBtn = document.getElementById('syncBtn');
 
         // Variáveis para controle de edição
         let vistoriaEditando = null;
@@ -1381,11 +1565,23 @@
         document.addEventListener('DOMContentLoaded', function() {
             console.log('Sistema iniciado. Vistorias carregadas:', vistorias.length);
             
+            // Carregar configuração
+            carregarConfiguracao();
+            
+            // Preencher campos de configuração
+            jsonbinBinId.value = JSONBIN_CONFIG.BIN_ID || '';
+            jsonbinApiKey.value = JSONBIN_CONFIG.API_KEY || '';
+            
+            // Atualizar status da conexão
+            atualizarStatusConexao();
+            
             // Verificar se já está logado
             if (usuarioLogado) {
                 mostrarConteudoPrincipal();
                 // Tentar sincronizar com a nuvem ao iniciar
-                setTimeout(() => sincronizarComNuvem(), 1000);
+                if (JSONBIN_CONFIG.BIN_ID && JSONBIN_CONFIG.API_KEY) {
+                    setTimeout(() => sincronizarComNuvem(), 1000);
+                }
             } else {
                 loginContainer.style.display = 'flex';
                 mainContent.style.display = 'none';
@@ -1396,68 +1592,110 @@
             renderizarVistorias();
         });
 
-        // Login
-        loginForm.addEventListener('submit', function(e) {
-            e.preventDefault();
+        // Alternar seção de configurações
+        let configVisible = false;
+        configBtn.addEventListener('click', function() {
+            configVisible = !configVisible;
+            configSection.style.display = configVisible ? 'block' : 'none';
             
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-            
-            let valido = true;
-            
-            if (!username) {
-                document.getElementById('usernameError').style.display = 'block';
-                valido = false;
-            } else {
-                document.getElementById('usernameError').style.display = 'none';
-            }
-            
-            if (!password) {
-                document.getElementById('passwordError').style.display = 'block';
-                valido = false;
-            } else {
-                document.getElementById('passwordError').style.display = 'none';
-            }
-            
-            if (valido) {
-                // Verificar credenciais
-                if (usuariosValidos[username] && usuariosValidos[username] === password) {
-                    usuarioLogado = username;
-                    localStorage.setItem(STORAGE_KEYS.USUARIO, username);
-                    mostrarConteudoPrincipal();
-                    // Sincronizar após login
-                    setTimeout(() => sincronizarComNuvem(), 1000);
-                } else {
-                    alert('Usuário ou senha incorretos!');
-                }
+            if (configVisible) {
+                configSection.scrollIntoView({ behavior: 'smooth' });
             }
         });
 
-        // Logout
-        logoutBtn.addEventListener('click', function() {
-            if (confirm('Tem certeza que deseja sair do sistema?')) {
-                usuarioLogado = '';
-                localStorage.removeItem(STORAGE_KEYS.USUARIO);
-                loginContainer.style.display = 'flex';
-                mainContent.style.display = 'none';
-                loginForm.reset();
+        // Testar conexão com JSONBin
+        testConexaoBtn.addEventListener('click', async function() {
+            const binId = jsonbinBinId.value.trim();
+            const apiKey = jsonbinApiKey.value.trim();
+            
+            if (!binId || !apiKey) {
+                alert('Por favor, preencha o Bin ID e a API Key primeiro.');
+                return;
+            }
+            
+            mostrarMensagemSincronizacao('Testando conexão...', 'syncing');
+            
+            try {
+                const response = await fetch(`https://api.jsonbin.io/v3/b/${binId}`, {
+                    headers: {
+                        'X-Master-Key': apiKey
+                    }
+                });
+                
+                if (response.ok) {
+                    mostrarMensagemSincronizacao('Conexão estabelecida com sucesso!', 'success');
+                    statusConexao.className = 'status-conexao connected';
+                    statusIndicator.className = 'status-indicator connected';
+                    statusText.textContent = 'Conexão estabelecida com JSONBin.io';
+                } else {
+                    throw new Error('Erro na conexão');
+                }
+            } catch (error) {
+                mostrarMensagemSincronizacao('Erro na conexão com JSONBin', 'error');
+                statusConexao.className = 'status-conexao disconnected';
+                statusIndicator.className = 'status-indicator';
+                statusText.textContent = 'Erro na conexão. Verifique as credenciais.';
             }
         });
 
         // Sincronização manual
-        syncBtn.addEventListener('click', function() {
+        sincronizarAgoraBtn.addEventListener('click', function() {
             sincronizarComNuvem();
         });
 
+        // Salvar configurações
+        configForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const binId = jsonbinBinId.value.trim();
+            const apiKey = jsonbinApiKey.value.trim();
+            
+            if (!binId || !apiKey) {
+                alert('Por favor, preencha todos os campos de configuração.');
+                return;
+            }
+            
+            JSONBIN_CONFIG.BIN_ID = binId;
+            JSONBIN_CONFIG.API_KEY = apiKey;
+            
+            salvarConfiguracao();
+            atualizarStatusConexao();
+            
+            alert('Configurações salvas com sucesso!');
+            
+            // Testar conexão automaticamente
+            testConexaoBtn.click();
+        });
+
+        // Função para atualizar status da conexão
+        function atualizarStatusConexao() {
+            if (JSONBIN_CONFIG.BIN_ID && JSONBIN_CONFIG.API_KEY) {
+                statusText.textContent = 'Credenciais configuradas - clique em "Testar Conexão"';
+            } else {
+                statusText.textContent = 'Configure as credenciais para testar a conexão';
+            }
+        }
+
         // Função para sincronizar com JSONBin.io
         async function sincronizarComNuvem() {
+            // Verificar se as credenciais estão configuradas
+            if (!JSONBIN_CONFIG.BIN_ID || !JSONBIN_CONFIG.API_KEY) {
+                mostrarMensagemSincronizacao('Configure as credenciais do JSONBin primeiro', 'error');
+                configSection.style.display = 'block';
+                configSection.scrollIntoView({ behavior: 'smooth' });
+                return;
+            }
+            
             try {
                 mostrarMensagemSincronizacao('Sincronizando...', 'syncing');
+                
+                const JSONBIN_URL = `https://api.jsonbin.io/v3/b/${JSONBIN_CONFIG.BIN_ID}`;
+                const JSONBIN_URL_LATEST = `https://api.jsonbin.io/v3/b/${JSONBIN_CONFIG.BIN_ID}/latest`;
                 
                 // 1. Buscar dados do JSONBin
                 const response = await fetch(JSONBIN_URL_LATEST, {
                     headers: {
-                        'X-Master-Key': JSONBIN_API_KEY
+                        'X-Master-Key': JSONBIN_CONFIG.API_KEY
                     }
                 });
                 
@@ -1490,7 +1728,7 @@
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
-                        'X-Master-Key': JSONBIN_API_KEY
+                        'X-Master-Key': JSONBIN_CONFIG.API_KEY
                     },
                     body: JSON.stringify({ vistorias: vistorias })
                 });
@@ -1525,6 +1763,58 @@
             syncText.textContent = mensagem;
             syncIndicator.className = 'sync-indicator show ' + tipo;
         }
+
+        // ... (o restante do código JavaScript permanece igual) ...
+
+        // Login
+        loginForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            let valido = true;
+            
+            if (!username) {
+                document.getElementById('usernameError').style.display = 'block';
+                valido = false;
+            } else {
+                document.getElementById('usernameError').style.display = 'none';
+            }
+            
+            if (!password) {
+                document.getElementById('passwordError').style.display = 'block';
+                valido = false;
+            } else {
+                document.getElementById('passwordError').style.display = 'none';
+            }
+            
+            if (valido) {
+                // Verificar credenciais
+                if (usuariosValidos[username] && usuariosValidos[username] === password) {
+                    usuarioLogado = username;
+                    localStorage.setItem(STORAGE_KEYS.USUARIO, username);
+                    mostrarConteudoPrincipal();
+                    // Sincronizar após login
+                    if (JSONBIN_CONFIG.BIN_ID && JSONBIN_CONFIG.API_KEY) {
+                        setTimeout(() => sincronizarComNuvem(), 1000);
+                    }
+                } else {
+                    alert('Usuário ou senha incorretos!');
+                }
+            }
+        });
+
+        // Logout
+        logoutBtn.addEventListener('click', function() {
+            if (confirm('Tem certeza que deseja sair do sistema?')) {
+                usuarioLogado = '';
+                localStorage.removeItem(STORAGE_KEYS.USUARIO);
+                loginContainer.style.display = 'flex';
+                mainContent.style.display = 'none';
+                loginForm.reset();
+            }
+        });
 
         function mostrarConteudoPrincipal() {
             loginContainer.style.display = 'none';
@@ -2029,21 +2319,21 @@
                   '3. 📊 Acompanhe as métricas no dashboard\n' +
                   '4. 📋 Consulte o histórico completo\n' +
                   '5. ✏️ Edite vistorias existentes\n' +
-                  '6. 💾 Exporte os dados quando necessário\n' +
-                  '7. 🔄 Sincronize entre dispositivos\n\n' +
+                  '6. ⚙️ Configure o JSONBin para sincronização\n' +
+                  '7. 💾 Exporte os dados quando necessário\n\n' +
                   'Dúvidas? Contate o administrador do sistema.');
         });
 
         // Sincronização automática a cada 5 minutos
         setInterval(() => {
-            if (usuarioLogado) {
+            if (usuarioLogado && JSONBIN_CONFIG.BIN_ID && JSONBIN_CONFIG.API_KEY) {
                 sincronizarComNuvem();
             }
         }, 300000); // 5 minutos
 
         // Detectar mudanças na conexão para sincronização
         window.addEventListener('online', function() {
-            if (usuarioLogado) {
+            if (usuarioLogado && JSONBIN_CONFIG.BIN_ID && JSONBIN_CONFIG.API_KEY) {
                 mostrarMensagemSincronizacao('Conexão restaurada - sincronizando...', 'syncing');
                 setTimeout(() => sincronizarComNuvem(), 2000);
             }
@@ -2102,22 +2392,6 @@
         // Configurar data atual como padrão
         document.getElementById('data').valueAsDate = new Date();
         document.getElementById('editarData').valueAsDate = new Date();
-
-        // Configuração do JSONBin - instruções
-        console.log(`
-        🚀 CONFIGURAÇÃO DO JSONBIN.IO:
-
-        1. Acesse: https://jsonbin.io/
-        2. Crie uma conta gratuita
-        3. Crie um novo bin (cole qualquer JSON, ex: {"vistorias": []})
-        4. Copie o Bin ID e cole na variável JSONBIN_BIN_ID
-        5. Vá em "API Keys" e copie a "Secret Key"
-        6. Cole na variável JSONBIN_API_KEY
-
-        📝 EXEMPLO DE CONFIGURAÇÃO:
-        const JSONBIN_BIN_ID = '67f8a9f2ad19ca34f85d8c1a';
-        const JSONBIN_API_KEY = '$2a$10$5R2aZxZ8Z8Z8Z8Z8Z8Z8Z.';
-        `);
     </script>
 </body>
 </html>
