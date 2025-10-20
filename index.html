@@ -26,24 +26,6 @@
             --radius: 12px;
         }
 
-        .dark-mode {
-            --primary-color: #3b82f6;
-            --primary-dark: #2563eb;
-            --primary-light: #60a5fa;
-            --secondary-color: #10b981;
-            --secondary-dark: #059669;
-            --danger-color: #ef4444;
-            --warning-color: #f59e0b;
-            --dark-color: #f1f5f9;
-            --light-color: #1e293b;
-            --text-color: #e2e8f0;
-            --bg-color: #0f172a;
-            --card-bg: #1e293b;
-            --border-color: #334155;
-            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
-            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
-        }
-
         * {
             margin: 0;
             padding: 0;
@@ -57,10 +39,6 @@
             transition: var(--transition);
             line-height: 1.6;
             min-height: 100vh;
-        }
-
-        .dark-mode body {
-            background: linear-gradient(135deg, #0c4a6e 0%, #1e3a8a 100%);
         }
 
         .container {
@@ -77,11 +55,6 @@
             padding: 20px 0;
             margin-bottom: 30px;
             border-bottom: 1px solid var(--border-color);
-            background: var(--bg-color);
-            padding: 20px;
-            margin: -20px -20px 30px -20px;
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
         }
 
         .logo {
@@ -116,7 +89,6 @@
             border-radius: 8px;
             background: var(--card-bg);
             border: 1px solid var(--border-color);
-            color: var(--text-color);
         }
 
         .user-avatar {
@@ -130,26 +102,6 @@
             color: white;
             font-weight: 600;
             font-size: 0.9rem;
-        }
-
-        .theme-toggle {
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 10px 16px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: var(--transition);
-            font-weight: 500;
-            color: var(--text-color);
-        }
-
-        .theme-toggle:hover {
-            background: var(--primary-color);
-            color: white;
-            transform: translateY(-2px);
         }
 
         /* Tela de Login */
@@ -605,8 +557,6 @@
             header {
                 flex-direction: column;
                 gap: 16px;
-                padding: 15px;
-                margin: -20px -20px 30px -20px;
             }
             
             .user-menu {
@@ -669,10 +619,6 @@
                         <div class="user-avatar" id="userAvatar">A</div>
                         <span id="userName">Administrador</span>
                     </div>
-                    <button class="theme-toggle" id="themeToggle">
-                        <i class="fas fa-moon"></i>
-                        <span>Modo Escuro</span>
-                    </button>
                     <button class="btn btn-danger" id="logoutBtn">
                         <i class="fas fa-sign-out-alt"></i>
                         Sair
@@ -680,7 +626,6 @@
                 </div>
             </header>
 
-            <!-- O resto do conteúdo permanece igual -->
             <section class="dashboard">
                 <div class="card">
                     <div class="card-header">
@@ -820,16 +765,13 @@
     </div>
 
     <script>
-        // O JavaScript permanece exatamente igual
         // Dados - histórico começa completamente limpo
         let vistorias = JSON.parse(localStorage.getItem('vistorias')) || [];
-        let modoEscuro = localStorage.getItem('modoEscuro') === 'true';
         let usuarioLogado = localStorage.getItem('usuarioLogado') || '';
 
         // Elementos DOM
         const loginContainer = document.getElementById('loginContainer');
         const mainContent = document.getElementById('mainContent');
-        const themeToggle = document.getElementById('themeToggle');
         const loginForm = document.getElementById('loginForm');
         const logoutBtn = document.getElementById('logoutBtn');
         const vistoriaForm = document.getElementById('vistoriaForm');
@@ -862,8 +804,6 @@
                 loginContainer.style.display = 'flex';
                 mainContent.style.display = 'none';
             }
-            
-            aplicarTema();
             
             // Histórico começa limpo - sem dados de exemplo
             atualizarDashboard();
@@ -927,23 +867,6 @@
             // Atualizar dashboard
             atualizarDashboard();
             renderizarVistorias();
-        }
-
-        // Alternar modo claro/escuro
-        themeToggle.addEventListener('click', function() {
-            modoEscuro = !modoEscuro;
-            localStorage.setItem('modoEscuro', modoEscuro);
-            aplicarTema();
-        });
-
-        function aplicarTema() {
-            if (modoEscuro) {
-                document.body.classList.add('dark-mode');
-                themeToggle.innerHTML = '<i class="fas fa-sun"></i><span>Modo Claro</span>';
-            } else {
-                document.body.classList.remove('dark-mode');
-                themeToggle.innerHTML = '<i class="fas fa-moon"></i><span>Modo Escuro</span>';
-            }
         }
 
         // Exportar dados
@@ -1088,7 +1011,7 @@
                 
                 alert('Vistoria registrada com sucesso!');
             }
-        }
+        });
 
         // Atualizar dashboard
         function atualizarDashboard() {
